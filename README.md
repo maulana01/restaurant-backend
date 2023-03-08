@@ -31,6 +31,10 @@ $ npm run start:dev
 
 ```
 
+### Deploy it in 7 seconds:
+
+[![Deploy to Cyclic](https://deploy.cyclic.app/button.svg)](https://deploy.cyclic.app/)
+
 ## Stay in touch
 
 - LinkedIn - [Maulana Imam Malik](https://www.linkedin.com/in/maulanaimammalik/)
