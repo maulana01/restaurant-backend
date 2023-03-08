@@ -32,7 +32,10 @@ io.on('connection', (socket) => {
 });
 
 app.set('io', io);
-
+app.all('/', (req, res) => {
+  console.log('Just got a request!');
+  res.send('Jalan');
+});
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use('/api/v1/menus', routes.menuRoute);
