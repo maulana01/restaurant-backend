@@ -3,8 +3,13 @@
 const models = require('../../models');
 
 const getAllMenus = async () => {
-  const menus = await models.Menu.findAll({ attributes: { exclude: ['id', 'createdAt', 'updatedAt'] }, order: [['nama', 'ASC']] });
+  const menus = await models.Menu.findAll({ order: [['nama', 'ASC']] });
   return menus.map((menu) => menu.dataValues);
+};
+
+const getById = async (id) => {
+  const menu = await models.Menu.findOne({ where: { id } });
+  return menu;
 };
 
 const createMenu = (body) => {
@@ -24,6 +29,7 @@ const deleteMenu = (id) => {
 
 module.exports = {
   getAllMenus,
+  getById,
   createMenu,
   updateMenu,
   deleteMenu,

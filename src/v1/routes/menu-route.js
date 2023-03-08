@@ -22,7 +22,7 @@ const validateMenuUpdate = [
 
 router.get('/', menuController.getAllMenu);
 router.post('/', utils.upload().single('img_url'), validateMenuPost, menuController.createMenu);
-router.put('/:id', validateMenuUpdate, menuController.updateMenu);
+router.patch('/:id', utils.upload().single('img_url'), validateMenuUpdate, menuController.updateMenu);
 router.delete('/:id', menuController.deleteMenu);
 
 module.exports = router;
