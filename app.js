@@ -1,0 +1,41 @@
+/** @format */
+
+const express = require('express');
+const bodyParser = require('body-parser');
+const app = express();
+const http = require('http');
+const port = 3000;
+const server = http.createServer(app);
+const { Server } = require('socket.io');
+
+const routes = require('./src/v1/routes');
+
+const io = new Server(server, {
+  cors: {
+    origin: '*',
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
+  },
+});
+
+io.on('connection', (socket) => {
+  console.log('a user connected');
+  socket.on('disconnect', () => {
+    console.log('user disconnected');
+  });
+  socket.on('paid-orders', (data) => {
+    console.log('paid-orders', data, socket);
+    io.emit('paid-orders', data);
+  });
+  socket.on('error', function (err) {
+    console.log(err);
+  });
+});
+
+app.set('io', io);
+
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: false }));
+app.use('/api/v1/menus', routes.menuRoute);
+app.use('/api/v1/orders', routes.orderRoute);
+
+server.listen(port, () => console.log('listening on port 3000'));
