@@ -1,20 +1,22 @@
 /** @format */
 
+const moment = require('moment');
 const models = require('../../models');
+require('moment/locale/id');
 
 const createOrder = async (body) => {
   return await models.Order.create(body);
 };
 
-const getByOrderCode = async (code) => {
-  return await models.Order.findOne({ where: { order_code: code } });
+const getByOrderCode = async (order_code) => {
+  return await models.Order.findOne({ where: { order_code } });
 };
 
-const getAllByOrderCode = async (code) => {
+const getAllByOrderCode = async (order_code) => {
   return await models.Order.findOne({
     where: {
       order_code: {
-        [models.Sequelize.Op.iLike]: `%${code}%`,
+        [models.Sequelize.Op.iLike]: `%${order_code}%`,
       },
     },
     order: [['order_code', 'DESC']],
@@ -35,10 +37,10 @@ const getOrderDetail = async (order_id) => {
   });
 };
 
-const checkOrderCodeIfExists = async (code) => {
+const checkOrderCodeIfExists = async (order_code) => {
   return await models.Order.count({
     where: {
-      order_code: code,
+      order_code,
     },
   }).then((count) => {
     if (count > 0) return true;
@@ -126,13 +128,35 @@ const changeOrderStatusToPaid = async (order_code) => {
   );
 };
 
-const allPaidOrders = async () => {
+const getPaidOrderByOrderCode = async (order_code) => {
+  return await models.Order.findOne({
+    where: {
+      status: 'Pesanan Sudah Dibayar',
+      order_code,
+    },
+  });
+};
+
+const getAllPaidOrders = async () => {
   return await models.Order.findAll({
     where: {
       status: 'Pesanan Sudah Dibayar',
     },
-    order: [['updatedAt', 'DESC']],
+    order: [['updatedAt', 'ASC']],
   });
+};
+
+const changeOrderStatusToProcessed = async (order_code) => {
+  return await models.Order.update(
+    {
+      status: 'Pesanan Sedang Diproses',
+    },
+    {
+      where: {
+        order_code,
+      },
+    }
+  );
 };
 
 module.exports = {
@@ -149,5 +173,7 @@ module.exports = {
   makeAnOrder,
   changeStatusToOrderLine,
   changeOrderStatusToPaid,
-  allPaidOrders,
+  getPaidOrderByOrderCode,
+  getAllPaidOrders,
+  changeOrderStatusToProcessed,
 };

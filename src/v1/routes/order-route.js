@@ -8,9 +8,11 @@ const { body, param } = require('express-validator');
 
 router.get('/new-order/:table_number', orderController.getNewOrder);
 router.get('/order/:order_code', orderController.getOrderAndOrderDetail);
-router.put('/new-order/:table_number', orderController.makeAnOrder);
-router.put('/cancel-order/:order_code', orderController.cancelOrder);
-router.put('/pay-order/:order_code', orderController.changeOrderStatusToPaid);
+router.get('/paid-orders', orderController.allPaidOrders);
+router.patch('/new-order/:table_number', orderController.makeAnOrder);
+router.patch('/cancel-order/:order_code', orderController.cancelOrder);
+router.patch('/pay-order/:order_code', orderController.changeOrderStatusToPaid);
+router.patch('/process-order/:order_code', orderController.changeOrderStatusToProcessed);
 router.post('/', orderController.initNewOrder);
 
 module.exports = router;

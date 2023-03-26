@@ -106,7 +106,7 @@ const changeOrderStatusToPaid = async (req, res) => {
     const order = await orderService.getByOrderCode(order_code);
     if (order) {
       await orderService.changeOrderStatusToPaid(order.order_code);
-      req.app.get('io').emit('paid-orders', await orderService.allPaidOrders());
+      req.app.get('io').emit('paid-orders', await orderService.getPaidOrderByOrderCode(order_code));
       return res.status(200).json({ status: 'success', message: 'Order status changed' });
     } else {
       return res.status(400).json({ status: 'error', message: 'Order not found' });
@@ -135,11 +135,35 @@ const getOrderDetailByOrderCode = async (req, res) => {
   try {
     const { order_code } = req.params;
     const order = await orderService.getByOrderCode(order_code);
-    req.io.emit('processed-orders', () => {});
+    // req.io.emit('processed-orders', () => {});
     console.log('ini order', req.io);
     if (order) {
       const orderDetail = await orderService.getOrderDetail(order.id);
       return res.status(200).json({ status: 'success', data: orderDetail });
+    } else {
+      return res.status(400).json({ status: 'error', message: 'Order not found' });
+    }
+  } catch (error) {
+    return res.status(500).json({ status: 'error', message: error.message });
+  }
+};
+
+const allPaidOrders = async (req, res) => {
+  try {
+    const orders = await orderService.getAllPaidOrders();
+    return res.status(200).json({ status: 'success', data: orders });
+  } catch (error) {
+    return res.status(500).json({ status: 'error', message: error.message });
+  }
+};
+
+const changeOrderStatusToProcessed = async (req, res) => {
+  try {
+    const { order_code } = req.params;
+    const order = await orderService.getByOrderCode(order_code);
+    if (order) {
+      await orderService.changeOrderStatusToProcessed(order.order_code);
+      return res.status(200).json({ status: 'success', message: 'Order status changed' });
     } else {
       return res.status(400).json({ status: 'error', message: 'Order not found' });
     }
@@ -156,4 +180,6 @@ module.exports = {
   getOrderAndOrderDetail,
   getOrderDetailByOrderCode,
   changeOrderStatusToPaid,
+  allPaidOrders,
+  changeOrderStatusToProcessed,
 };
