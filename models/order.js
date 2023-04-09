@@ -15,6 +15,7 @@ module.exports = (sequelize, DataTypes) => {
         foreignKey: 'order_id',
         as: 'order_details',
       });
+      this.belongsTo(models.Device, { foreignKey: 'device_ids', as: 'device' });
     }
   }
   Order.init(
@@ -25,6 +26,7 @@ module.exports = (sequelize, DataTypes) => {
       status: DataTypes.STRING,
       nama: DataTypes.STRING,
       no_hp: DataTypes.STRING,
+      served: DataTypes.BOOLEAN,
     },
     {
       sequelize,
