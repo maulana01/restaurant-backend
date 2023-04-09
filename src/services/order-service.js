@@ -1,8 +1,11 @@
 /** @format */
 
-const moment = require('moment');
+// const moment = require('moment');
 const models = require('../../models');
 require('moment/locale/id');
+
+const TODAY_START = new Date().setHours(7, 0, 0, 0);
+const NOW = new Date().setHours(30, 59, 59, 59);
 
 const createOrder = async (body) => {
   return await models.Order.create(body);
@@ -141,6 +144,11 @@ const getAllPaidOrders = async () => {
   return await models.Order.findAll({
     where: {
       status: 'Pesanan Sudah Dibayar',
+      // change it later to createdAt
+      updatedAt: {
+        [models.Sequelize.Op.gt]: TODAY_START,
+        [models.Sequelize.Op.lt]: NOW,
+      },
     },
     order: [['updatedAt', 'ASC']],
   });
@@ -157,6 +165,65 @@ const changeOrderStatusToProcessed = async (order_code) => {
       },
     }
   );
+};
+
+const getProcessedOrderByOrderCode = async (order_code) => {
+  return await models.Order.findOne({
+    where: {
+      status: 'Pesanan Sedang Diproses',
+      order_code,
+    },
+  });
+};
+
+const getAllProcessedOrders = async () => {
+  return await models.Order.findAll({
+    where: {
+      status: 'Pesanan Sedang Diproses',
+      // change it later to createdAt
+      updatedAt: {
+        [models.Sequelize.Op.gt]: TODAY_START,
+        [models.Sequelize.Op.lt]: NOW,
+      },
+    },
+    order: [['updatedAt', 'ASC']],
+  });
+};
+
+const changeOrderStatusToFinished = async (order_code) => {
+  return await models.Order.update(
+    {
+      status: 'Pesanan Selesai',
+    },
+    {
+      where: {
+        order_code,
+      },
+    }
+  );
+};
+
+const getFinishedOrderByOrderCode = async (order_code) => {
+  return await models.Order.findOne({
+    where: {
+      status: 'Pesanan Selesai',
+      order_code,
+    },
+  });
+};
+
+const getAllFinishedOrders = async () => {
+  return await models.Order.findAll({
+    where: {
+      status: 'Pesanan Selesai',
+      // change it later to createdAt
+      updatedAt: {
+        [models.Sequelize.Op.gt]: TODAY_START,
+        [models.Sequelize.Op.lt]: NOW,
+      },
+    },
+    order: [['updatedAt', 'ASC']],
+  });
 };
 
 module.exports = {
@@ -176,4 +243,9 @@ module.exports = {
   getPaidOrderByOrderCode,
   getAllPaidOrders,
   changeOrderStatusToProcessed,
+  getProcessedOrderByOrderCode,
+  getAllProcessedOrders,
+  changeOrderStatusToFinished,
+  getFinishedOrderByOrderCode,
+  getAllFinishedOrders,
 };
