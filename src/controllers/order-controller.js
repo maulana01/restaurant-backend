@@ -24,6 +24,7 @@ const generateOrderCode = async (i = 1, table_number) => {
   } else {
     return generateOrderCode(i + 1, table_number);
   }
+  // output : SNC23040220001 (SNC + YY + MM + DD + table_number + 0001 Increment)
 };
 
 const initNewOrder = async (req, res) => {
@@ -33,6 +34,7 @@ const initNewOrder = async (req, res) => {
       order_code: await generateOrderCode(1, table_number),
       table_number,
       status: 'Menunggu Pelanggan Untuk Memesan',
+      served: false,
     };
     if (await orderService.checkWaitingOrder(table_number)) {
       return res.status(400).json({ status: 'error', message: 'Order already exists' });
@@ -163,10 +165,45 @@ const changeOrderStatusToProcessed = async (req, res) => {
     const order = await orderService.getByOrderCode(order_code);
     if (order) {
       await orderService.changeOrderStatusToProcessed(order.order_code);
+      req.app.get('io').emit('processed-orders', await orderService.getProcessedOrderByOrderCode(order_code));
       return res.status(200).json({ status: 'success', message: 'Order status changed' });
     } else {
       return res.status(400).json({ status: 'error', message: 'Order not found' });
     }
+  } catch (error) {
+    return res.status(500).json({ status: 'error', message: error.message });
+  }
+};
+
+const allProcessedOrders = async (req, res) => {
+  try {
+    const orders = await orderService.getAllProcessedOrders();
+    return res.status(200).json({ status: 'success', data: orders });
+  } catch (error) {
+    return res.status(500).json({ status: 'error', message: error.message });
+  }
+};
+
+const changeOrderStatusToFinished = async (req, res) => {
+  try {
+    const { order_code } = req.params;
+    const order = await orderService.getByOrderCode(order_code);
+    if (order) {
+      await orderService.changeOrderStatusToFinished(order.order_code);
+      req.app.get('io').emit('finished-orders', await orderService.getFinishedOrderByOrderCode(order_code));
+      return res.status(200).json({ status: 'success', message: 'Order status changed' });
+    } else {
+      return res.status(400).json({ status: 'error', message: 'Order not found' });
+    }
+  } catch (error) {
+    return res.status(500).json({ status: 'error', message: error.message });
+  }
+};
+
+const allFinishedOrders = async (req, res) => {
+  try {
+    const orders = await orderService.getAllFinishedOrders();
+    return res.status(200).json({ status: 'success', data: orders });
   } catch (error) {
     return res.status(500).json({ status: 'error', message: error.message });
   }
@@ -182,4 +219,7 @@ module.exports = {
   changeOrderStatusToPaid,
   allPaidOrders,
   changeOrderStatusToProcessed,
+  allProcessedOrders,
+  changeOrderStatusToFinished,
+  allFinishedOrders,
 };
