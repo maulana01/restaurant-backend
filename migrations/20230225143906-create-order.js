@@ -1,3 +1,5 @@
+/** @format */
+
 'use strict';
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
@@ -7,37 +9,44 @@ module.exports = {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
-        type: Sequelize.INTEGER
+        type: Sequelize.INTEGER,
       },
       order_code: {
-        type: Sequelize.STRING
+        type: Sequelize.STRING,
       },
       table_number: {
-        type: Sequelize.INTEGER
+        type: Sequelize.INTEGER,
       },
       payment_amount: {
-        type: Sequelize.DECIMAL
+        type: Sequelize.DECIMAL,
       },
       status: {
-        type: Sequelize.STRING
+        type: Sequelize.STRING,
       },
       nama: {
-        type: Sequelize.STRING
+        type: Sequelize.STRING,
       },
       no_hp: {
-        type: Sequelize.STRING
+        type: Sequelize.STRING,
+      },
+      served: {
+        type: Sequelize.BOOLEAN,
+      },
+      device_ids: {
+        type: Sequelize.INTEGER,
       },
       createdAt: {
         allowNull: false,
-        type: Sequelize.DATE
+        type: Sequelize.DATE,
       },
       updatedAt: {
         allowNull: false,
-        type: Sequelize.DATE
-      }
+        type: Sequelize.DATE,
+      },
     });
   },
   async down(queryInterface, Sequelize) {
     await queryInterface.dropTable('Orders');
-  }
+  },
 };
+
