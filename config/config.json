@@ -4,7 +4,10 @@
     "password": "admin",
     "database": "restaurant_backend",
     "host": "127.0.0.1",
-    "dialect": "postgres"
+    "dialect": "postgres",
+    "dialectOptions": {
+      "useUTC": true
+    }
   },
   "test": {
     "username": "root",

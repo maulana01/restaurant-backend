@@ -29,6 +29,10 @@ io.on('connection', (socket) => {
     console.log('paid-orders', data, socket);
     io.emit('paid-orders', data);
   });
+  socket.on('processed-orders', (data) => {
+    console.log('processed-orders', data, socket);
+    io.emit('processed-orders', data);
+  });
   socket.on('error', function (err) {
     console.log(err);
   });
@@ -44,4 +48,5 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use('/api/v1/menus', routes.menuRoute);
 app.use('/api/v1/orders', routes.orderRoute);
+app.use('/api/v1/devices', routes.deviceRoute);
 server.listen(port, () => console.log('listening on port 3000'));
