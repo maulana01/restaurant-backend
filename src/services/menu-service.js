@@ -3,7 +3,7 @@
 const models = require('../../models');
 
 const getAllMenus = async () => {
-  const menus = await models.Menu.findAll({ order: [['nama', 'ASC']] });
+  const menus = await models.Menu.findAll({ order: [['name', 'ASC']] });
   return menus.map((menu) => menu.dataValues);
 };
 

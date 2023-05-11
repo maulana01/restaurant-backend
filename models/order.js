@@ -24,8 +24,11 @@ module.exports = (sequelize, DataTypes) => {
       table_number: DataTypes.INTEGER,
       payment_amount: DataTypes.DECIMAL,
       status: DataTypes.STRING,
-      nama: DataTypes.STRING,
-      no_hp: DataTypes.STRING,
+      name: DataTypes.STRING,
+      // phone_number: DataTypes.STRING,
+      payment_method: DataTypes.STRING,
+      payment_expired_date: DataTypes.STRING,
+      virtual_account_number: DataTypes.STRING,
       served: DataTypes.BOOLEAN,
     },
     {

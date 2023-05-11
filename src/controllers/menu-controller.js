@@ -20,15 +20,15 @@ const getAllMenu = async (req, res) => {
 
 const createMenu = (req, res) => {
   try {
-    const { nama, harga, kategori } = req.body;
+    const { name, price, category_id } = req.body;
     if (!req.file) return res.status(400).json({ status: 'error', message: 'Image is required' });
     const getExtFile = extname(req.file.originalname);
     const imageUrl = req.file.path.replace(getExtFile, '');
     const newMenu = {
-      nama,
-      harga,
-      kategori,
-      img_url: imageUrl,
+      name,
+      price,
+      category_id,
+      image: imageUrl,
     };
     const validateForm = validationResult(req);
     if (!validateForm.isEmpty()) {
@@ -45,7 +45,7 @@ const createMenu = (req, res) => {
 const updateMenu = async (req, res) => {
   try {
     const { id } = req.params;
-    const { nama, harga, kategori } = req.body;
+    const { name, price, category_id } = req.body;
     const getMenuById = await menuService.getById(id);
     let imageUrl;
     if (req.file) {
@@ -53,18 +53,18 @@ const updateMenu = async (req, res) => {
       imageUrl = req.file.path.replace(getExtFile, '');
     }
     const newMenu = {
-      nama,
-      harga,
-      kategori,
-      img_url: imageUrl,
+      name,
+      price,
+      category_id,
+      image: imageUrl,
     };
     const validateForm = validationResult(req);
     if (!validateForm.isEmpty()) {
       cloudinary.uploader.destroy(req.file.filename);
       return res.status(400).json({ status: 'error', errors: validateForm.array() });
     }
-    if (req.file && getMenuById.img_url) {
-      const getImgId = getMenuById.img_url.substr(getMenuById.img_url.length - 20);
+    if (req.file && getMenuById.image) {
+      const getImgId = getMenuById.image.substr(getMenuById.image.length - 20);
       cloudinary.uploader.destroy(`public/images/menus/${getImgId}`);
     }
     menuService.updateMenu(id, newMenu);
@@ -74,9 +74,14 @@ const updateMenu = async (req, res) => {
   }
 };
 
-const deleteMenu = (req, res) => {
+const deleteMenu = async (req, res) => {
   try {
     const { id } = req.params;
+    const getById = await menuService.getById(id);
+    if (getById.image) {
+      const getImgId = getById.image.substr(getById.image.length - 20);
+      cloudinary.uploader.destroy(`public/images/menus/${getImgId}`);
+    }
     menuService.deleteMenu(id);
     return res.status(201).json({ status: 'success', message: 'Menu deleted' });
   } catch (error) {

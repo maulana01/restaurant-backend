@@ -13,16 +13,17 @@ module.exports = (sequelize, DataTypes) => {
       // define association here
       this.hasMany(models.Order_Detail, {
         foreignKey: 'menu_id',
-        as: 'menu',
+        as: 'menu_ref',
       });
+      this.belongsTo(models.Category, { foreignKey: 'category_id', as: 'items' });
     }
   }
   Menu.init(
     {
-      nama: DataTypes.STRING,
-      harga: DataTypes.DECIMAL(15, 0),
-      kategori: DataTypes.STRING,
-      img_url: DataTypes.TEXT,
+      name: DataTypes.STRING,
+      price: DataTypes.DECIMAL(15, 0),
+      category_id: DataTypes.INTEGER,
+      image: DataTypes.TEXT,
     },
     {
       sequelize,

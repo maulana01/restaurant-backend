@@ -34,7 +34,7 @@ const getOrderDetail = async (order_id) => {
     include: [
       {
         model: models.Menu,
-        as: 'menu',
+        as: 'menu_ref',
       },
     ],
   });
@@ -51,10 +51,12 @@ const checkOrderCodeIfExists = async (order_code) => {
   });
 };
 
-const checkWaitingOrder = async (table_number) => {
+const checkExistOrderUnlessClosedAndCanceled = async (table_number) => {
   return await models.Order.count({
     where: {
-      status: 'Menunggu Pelanggan Untuk Memesan',
+      status: {
+        [models.Sequelize.Op.notIn]: ['Order Closed', 'Pesanan Dibatalkan'],
+      },
       table_number,
     },
   }).then((count) => {
@@ -63,11 +65,37 @@ const checkWaitingOrder = async (table_number) => {
   });
 };
 
+const getFinishedOrderByTableNumber = async (table_number) => {
+  return await models.Order.findOne({
+    where: {
+      status: 'Pesanan Selesai',
+      table_number,
+    },
+  });
+};
+
 const getNewOrder = async (table_number) => {
   return await models.Order.findOne({
     where: {
       status: 'Menunggu Pelanggan Untuk Memesan',
       table_number,
+    },
+  });
+};
+
+const getNewOrderByDevice = async (device_ids) => {
+  return await models.Order.findOne({
+    where: {
+      status: {
+        [models.Sequelize.Op.or]: [
+          'Menunggu Pelanggan Untuk Memesan',
+          'Menunggu Pembayaran',
+          'Pesanan Sudah Dibayar',
+          'Pesanan Sedang Diproses',
+          'Pesanan Selesai',
+        ],
+      },
+      device_ids,
     },
   });
 };
@@ -226,14 +254,28 @@ const getAllFinishedOrders = async () => {
   });
 };
 
+const closeOrder = async (order_code) => {
+  return await models.Order.update(
+    {
+      status: 'Order Closed',
+    },
+    {
+      where: {
+        order_code,
+      },
+    }
+  );
+};
+
 module.exports = {
   createOrder,
   getByOrderCode,
   getAllByOrderCode,
   getOrderDetail,
   checkOrderCodeIfExists,
-  checkWaitingOrder,
+  checkExistOrderUnlessClosedAndCanceled,
   getNewOrder,
+  getNewOrderByDevice,
   getByTableNumber,
   cancelOrder,
   createOrderDetail,
@@ -248,4 +290,6 @@ module.exports = {
   changeOrderStatusToFinished,
   getFinishedOrderByOrderCode,
   getAllFinishedOrders,
+  getFinishedOrderByTableNumber,
+  closeOrder,
 };

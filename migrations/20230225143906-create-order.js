@@ -23,10 +23,19 @@ module.exports = {
       status: {
         type: Sequelize.STRING,
       },
-      nama: {
+      name: {
         type: Sequelize.STRING,
       },
-      no_hp: {
+      // phone_number: {
+      //   type: Sequelize.STRING,
+      // },
+      payment_method: {
+        type: Sequelize.STRING,
+      },
+      payment_expired_date: {
+        type: Sequelize.STRING,
+      },
+      virtual_account_number: {
         type: Sequelize.STRING,
       },
       served: {

@@ -10,9 +10,9 @@ cloudinary.config({
   api_secret: 'xO_NsHIMoLR3yqPLraq0I0yKbC0',
 });
 
-exports.upload = () => {
+exports.upload = (folderDestination) => {
   multer.diskStorage({
-    destination: 'public/images/menus',
+    destination: folderDestination == 'menus' ? 'public/images/menus' : 'public/images/categories',
     filename: function (req, file, cb) {
       cb(null, Date.now() + '-' + file.originalname);
     },
@@ -22,7 +22,7 @@ exports.upload = () => {
     cloudinary: cloudinary,
     params: (req, file) => {
       return {
-        folder: 'public/images/menus',
+        folder: folderDestination == 'menus' ? 'public/images/menus' : 'public/images/categories',
         allowed_formats: ['jpg', 'png', 'jpeg'],
       };
     },
