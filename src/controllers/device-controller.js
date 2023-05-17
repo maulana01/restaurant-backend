@@ -2,6 +2,15 @@
 
 const deviceService = require('../services/device-service');
 
+const getAll = async (req, res, next) => {
+  try {
+    const devices = await deviceService.getAll();
+    return res.status(200).json({ status: 'success', data: devices });
+  } catch (error) {
+    return res.status(500).json({ status: 'error', message: error.message });
+  }
+};
+
 const getDeviceById = async (req, res, next) => {
   try {
     const { device_id } = req.params;
@@ -27,6 +36,7 @@ const createDevice = async (req, res, next) => {
 };
 
 module.exports = {
+  getAll,
   getDeviceById,
   createDevice,
 };

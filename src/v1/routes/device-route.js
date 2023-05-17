@@ -12,6 +12,7 @@ const validateDevicePost = [
   body('device_name').notEmpty().withMessage('Device Name harus diisi'),
 ];
 
+router.get('/', deviceController.getAll);
 router.get('/:device_id', deviceController.getDeviceById);
 router.post('/', validateDevicePost, deviceController.createDevice);
 
