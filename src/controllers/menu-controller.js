@@ -18,7 +18,7 @@ const getAllMenu = async (req, res) => {
   }
 };
 
-const createMenu = (req, res) => {
+const createMenu = async (req, res) => {
   try {
     const { name, price, category_id } = req.body;
     if (!req.file) return res.status(400).json({ status: 'error', message: 'Image is required' });
@@ -32,7 +32,7 @@ const createMenu = (req, res) => {
     };
     const validateForm = validationResult(req);
     if (!validateForm.isEmpty()) {
-      cloudinary.uploader.destroy(req.file.filename);
+      await cloudinary.uploader.destroy(req.file.filename);
       return res.status(400).json({ status: 'error', errors: validateForm.array() });
     }
     menuService.createMenu(newMenu);
@@ -60,12 +60,12 @@ const updateMenu = async (req, res) => {
     };
     const validateForm = validationResult(req);
     if (!validateForm.isEmpty()) {
-      cloudinary.uploader.destroy(req.file.filename);
+      await cloudinary.uploader.destroy(req.file.filename);
       return res.status(400).json({ status: 'error', errors: validateForm.array() });
     }
     if (req.file && getMenuById.image) {
       const getImgId = getMenuById.image.substr(getMenuById.image.length - 20);
-      cloudinary.uploader.destroy(`public/images/menus/${getImgId}`);
+      await cloudinary.uploader.destroy(`public/images/menus/${getImgId}`);
     }
     menuService.updateMenu(id, newMenu);
     return res.status(201).json({ status: 'success', message: 'Menu updated' });
@@ -80,7 +80,7 @@ const deleteMenu = async (req, res) => {
     const getById = await menuService.getById(id);
     if (getById.image) {
       const getImgId = getById.image.substr(getById.image.length - 20);
-      cloudinary.uploader.destroy(`public/images/menus/${getImgId}`);
+      await cloudinary.uploader.destroy(`public/images/menus/${getImgId}`);
     }
     menuService.deleteMenu(id);
     return res.status(201).json({ status: 'success', message: 'Menu deleted' });

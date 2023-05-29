@@ -31,7 +31,7 @@ const createCategory = async (req, res) => {
     };
     const validateForm = validationResult(req);
     if (!validateForm.isEmpty()) {
-      cloudinary.uploader.destroy(req.file.filename);
+      await cloudinary.uploader.destroy(req.file.filename);
       return res.status(400).json({ status: 'error', errors: validateForm.array() });
     }
     categoryService.createCategory(newCategory);
@@ -57,12 +57,12 @@ const updateCategory = async (req, res) => {
     };
     const validateForm = validationResult(req);
     if (!validateForm.isEmpty()) {
-      cloudinary.uploader.destroy(req.file.filename);
+      await cloudinary.uploader.destroy(req.file.filename);
       return res.status(400).json({ status: 'error', errors: validateForm.array() });
     }
     if (req.file && getCategoryById.image) {
       const getImgId = getCategoryById.image.substr(getCategoryById.image.length - 20);
-      cloudinary.uploader.destroy(`public/images/categories/${getImgId}`);
+      await cloudinary.uploader.destroy(`public/images/categories/${getImgId}`);
     }
     categoryService.updateCategory(id, newCategory);
     return res.status(201).json({ status: 'success', message: 'Category updated' });
@@ -77,7 +77,7 @@ const deleteCategory = async (req, res) => {
     const getCategoryById = await categoryService.getCategoryById(id);
     if (getCategoryById.image) {
       const getImgId = getCategoryById.image.substr(getCategoryById.image.length - 20);
-      cloudinary.uploader.destroy(`public/images/categories/${getImgId}`);
+      await cloudinary.uploader.destroy(`public/images/categories/${getImgId}`);
     }
     categoryService.deleteCategory(id);
     return res.status(200).json({ status: 'success', message: 'Category deleted' });
@@ -91,7 +91,7 @@ const deleteCategoryImage = async (req, res) => {
     const { id } = req.params;
     const linkimg = `https://res.cloudinary.com/dcdu2v41u/image/upload/v1681722619/public/images/categories/${id}`;
     const getImgId = linkimg.substr(linkimg.length - 20);
-    cloudinary.uploader.destroy(`public/images/categories/${getImgId}`);
+    await cloudinary.uploader.destroy(`public/images/categories/${getImgId}`);
     return res.status(200).json({ status: 'success', message: 'Category image deleted' });
   } catch (error) {
     return res.status(500).json({ status: 'error', message: error.message });
