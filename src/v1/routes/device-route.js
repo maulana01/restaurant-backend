@@ -15,5 +15,6 @@ const validateDevicePost = [
 router.get('/', deviceController.getAll);
 router.get('/:device_id', deviceController.getDeviceById);
 router.post('/', validateDevicePost, deviceController.createDevice);
+router.delete('/:id', deviceController.deleteDevice);
 
 module.exports = router;

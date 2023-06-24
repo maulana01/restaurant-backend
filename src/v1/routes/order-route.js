@@ -4,6 +4,7 @@ const express = require('express');
 const router = express.Router();
 
 const orderController = require('../../controllers/order-controller');
+const tripay = require('../../controllers/tripay');
 const { body, param } = require('express-validator');
 
 // router.get('/new-order/:table_number', orderController.getNewOrder);
@@ -20,5 +21,8 @@ router.patch('/finish-order/:order_code', orderController.changeOrderStatusToFin
 router.patch('/close-order/:table_number', orderController.closeOrder);
 router.post('/', orderController.initNewOrder);
 router.post('/payment/notification', orderController.paymentNotification);
+
+router.post('/tripay', tripay.transactionCreate);
+router.post('/payment-tripay/notification', orderController.tripayPaymentNotification);
 
 module.exports = router;

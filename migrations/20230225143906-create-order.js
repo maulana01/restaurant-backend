@@ -38,11 +38,27 @@ module.exports = {
       virtual_account_number: {
         type: Sequelize.STRING,
       },
-      served: {
-        type: Sequelize.BOOLEAN,
+      qr_url: {
+        type: Sequelize.TEXT,
       },
+      // served: {
+      //   type: Sequelize.BOOLEAN,
+      // },
       device_ids: {
         type: Sequelize.INTEGER,
+        references: {
+          model: 'Devices',
+          key: 'id',
+        },
+        onDelete: 'SET NULL',
+      },
+      user_ids: {
+        type: Sequelize.INTEGER,
+        references: {
+          model: 'Users',
+          key: 'id',
+        },
+        onDelete: 'SET NULL',
       },
       createdAt: {
         allowNull: false,

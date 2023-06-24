@@ -15,7 +15,20 @@ module.exports = (sequelize, DataTypes) => {
         foreignKey: 'order_id',
         as: 'order_details',
       });
-      this.belongsTo(models.Device, { foreignKey: 'device_ids', as: 'device' });
+      this.belongsTo(models.Device, {
+        foreignKey: {
+          name: 'device_ids',
+          allowNull: true,
+        },
+        as: 'device',
+      });
+      this.belongsTo(models.User, {
+        foreignKey: {
+          name: 'user_ids',
+          allowNull: true,
+        },
+        as: 'made_by',
+      });
     }
   }
   Order.init(
@@ -29,7 +42,9 @@ module.exports = (sequelize, DataTypes) => {
       payment_method: DataTypes.STRING,
       payment_expired_date: DataTypes.STRING,
       virtual_account_number: DataTypes.STRING,
-      served: DataTypes.BOOLEAN,
+      qr_url: DataTypes.TEXT,
+      user_ids: DataTypes.INTEGER,
+      // served: DataTypes.BOOLEAN,
     },
     {
       sequelize,

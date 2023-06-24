@@ -9,7 +9,19 @@ const { curly } = require('node-libcurl');
 const fs = require('fs');
 const path = require('path');
 const tls = require('tls');
+const axios = require('axios'); // using Axios library
+const moment = require('moment/moment');
 
+/*==================== TRIPAY CONFIG ====================*/
+const apiKey = 'DEV-1E32qQGO7FmceagRMhecjo9zGhttmV0tOLbLC8fY';
+const privateKey = 'OjOvo-66Swz-ID3yv-ppcMr-vbFdO';
+
+const merchant_code = 'T22987';
+
+const expiry = parseInt(Math.floor(new Date() / 1000) + 24 * 60 * 60); // 24 jam
+/*==================== TRIPAY CONFIG ====================*/
+
+/*==================== DOKU PAYMENT GATEWAY ====================*/
 const generateDigest = (jsonBody) => {
   let jsonStringHash256 = crypto.createHash('sha256').update(jsonBody, 'utf-8').digest();
 
@@ -44,6 +56,34 @@ const generateSignature = (clientId, requestId, requestTimestamp, requestTarget,
   // Prepend encoded result with algorithm info HMACSHA256=
   return 'HMACSHA256=' + signature;
 };
+/*==================== DOKU PAYMENT GATEWAY ====================*/
+
+/*==================== TRIPAY PAYMENT GATEWAY ====================*/
+function createSignature(merchant_code, merchant_ref, amount) {
+  return crypto
+    .createHmac('sha256', privateKey)
+    .update(merchant_code + merchant_ref + amount)
+    .digest('hex');
+}
+
+const transactionCreate = async (payload, apiKey) => {
+  try {
+    const result = await axios.post('https://tripay.co.id/api-sandbox/transaction/create', payload, {
+      headers: { Authorization: 'Bearer ' + apiKey },
+      validateStatus: function (status) {
+        return status < 999; // ignore http error
+      },
+    });
+    console.log('hasil', result);
+    return result;
+    // return res.status(200).json({ message: 'success', data: result.data });
+  } catch (error) {
+    console.error(error);
+    // return res.status(500).json({ message: 'internal server error', data: error });
+  }
+};
+
+/*==================== TRIPAY PAYMENT GATEWAY ====================*/
 
 const generateOrderCode = async (i = 1, table_number) => {
   const getDate = new Date();
@@ -108,80 +148,51 @@ const makeAnOrder = async (req, res) => {
       payment_method,
       status: 'Menunggu Pembayaran',
     };
-    pesanan.map((item) => {
-      let sub = item.qty * item.price;
-      const orderDetailBody = {
-        order_id: order.id,
-        menu_id: item.menu_id,
-        qty: item.qty,
-        price: item.price,
-      };
-      total += sub;
-      orderService.createOrderDetail(orderDetailBody);
-    });
+    let tripayOrderItems = [];
+    await Promise.all(
+      pesanan.map(async (item) => {
+        let sub = item.qty * item.price;
+        const orderDetailBody = {
+          order_id: order.id,
+          menu_id: item.menu_id,
+          qty: item.qty,
+          price: item.price,
+        };
+        const menu = await menuService.getById(item.menu_id);
+        tripayOrderItems.push({
+          name: menu.name,
+          price: item.price,
+          quantity: item.qty,
+        });
+        total += sub;
+        orderService.createOrderDetail(orderDetailBody);
+      })
+    );
     orderBody.payment_amount = total;
+
+    const payloadTripay = {
+      merchant_ref: order.order_code,
+      amount: total,
+      customer_name: name,
+      customer_email: 'emailpelanggan@domain.com',
+      // customer_phone: '081234567890',
+      order_items: tripayOrderItems,
+      expired_time: expiry,
+      signature: createSignature(merchant_code, order.order_code, total),
+    };
 
     if (payment_method == 'briva') {
       /*======================================= payment gateway =======================================*/
-      const dateTime = new Date().toISOString();
-      const dateTimeFinal = dateTime.substr(0, 19) + 'Z';
-      const generateUUID = uuidv4();
+      payloadTripay.method = 'BRIVA';
+      const result = await transactionCreate(payloadTripay, apiKey);
 
-      // Generate Digest from JSON Body, For HTTP Method GET/DELETE don't need generate Digest
-      // console.log('----- Digest -----');
-      let jsonBody = JSON.stringify({
-        order: {
-          invoice_number: order.order_code,
-          amount: total,
-        },
-        virtual_account_info: {
-          expired_time: 60,
-          reusable_status: true,
-          // info1: 'Sans Co. Cafe & Coworking Space',
-        },
-        customer: {
-          name,
-        },
-      });
-      let digest = await generateDigest(jsonBody);
-      // console.log(digest);
-      // console.log();
-
-      // Generate Header Signature
-      let headerSignature = await generateSignature(
-        'BRN-0266-1659477749505',
-        generateUUID,
-        dateTimeFinal,
-        '/bri-virtual-account/v2/payment-code', // For merchant request to Jokul, use Jokul path here. For HTTP Notification, use merchant path here
-        digest, // Set empty string for this argumentes if HTTP Method is GET/DELETE
-        'SK-UUxKZAxwFqbg0CozrPkY'
-      );
-
-      const certFilePath = path.join(__dirname, '../../cacert.pem');
-
-      const { data, statusCode, headers } = await curly.post('https://api-sandbox.doku.com/bri-virtual-account/v2/payment-code', {
-        httpHeader: [
-          'Content-Type: application/json',
-          'Client-Id: BRN-0266-1659477749505',
-          `Request-Id: ${generateUUID}`,
-          `Request-Timestamp: ${dateTimeFinal}`,
-          `Signature: ${headerSignature}`,
-        ],
-        postFields: jsonBody,
-        caInfo: certFilePath,
-      });
-
-      console.log('ini hasil request doku', data);
-      console.log('ini hasil request statuscode doku', statusCode);
-      console.log('ini hasil request headers doku', headers);
-
-      if (statusCode == 200 || statusCode == 201) {
-        orderBody.virtual_account_number = data.virtual_account_info.virtual_account_number;
-        orderBody.payment_expired_date = data.virtual_account_info.expired_date;
+      if (result.status == 200 || result.status == 201) {
+        orderBody.virtual_account_number = result.data.data.pay_code;
+        orderBody.payment_expired_date = moment.unix(result.data.data.expired_time).format('YYYYMMDDHHmmss');
         await req.app.get('io').emit('get-va', {
-          virtual_account_number: data.virtual_account_info.virtual_account_number,
+          virtual_account_number: result.data.data.pay_code,
           amount: total,
-          expired_date: data.virtual_account_info.expired_date,
+          expired_date: moment.unix(result.data.data.expired_time).format('YYYYMMDDHHmmss'),
         });
         // console.log('ini isi orderbody', orderBody);
         await orderService.makeAnOrder(order.order_code, orderBody);
@@ -190,6 +201,27 @@ const makeAnOrder = async (req, res) => {
       /*======================================= payment gateway =======================================*/
     } else if (payment_method == 'cash') {
       await orderService.makeAnOrder(order.order_code, orderBody);
+    } else if (payment_method == 'qris') {
+      payloadTripay.method = 'QRIS2';
+      const result = await transactionCreate(payloadTripay, apiKey);
+
+      console.log('statuskode', result.status);
+      console.log('qr_url', result.data.data.qr_url);
+      console.log('pay_code', result.data.data.pay_code);
+      console.log('expired_time', result.data.data.expired_time);
+
+      if (result.status == 200 || result.status == 201) {
+        orderBody.qr_url = result.data.data.qr_url;
+        orderBody.payment_expired_date = moment.unix(result.data.data.expired_time).format('YYYYMMDDHHmmss');
+        await req.app.get('io').emit('get-qris', {
+          qr_url: result.data.data.qr_url,
+          amount: total,
+          expired_date: moment.unix(result.data.data.expired_time).format('YYYYMMDDHHmmss'),
+        });
+        console.log('ini isi orderbody', orderBody);
+        await orderService.makeAnOrder(order.order_code, orderBody);
+        // console.log('ini hasil save order', saveOrder);
+      }
     }
 
     return res.status(201).json({ status: 'success', message: 'Order created' });
@@ -366,6 +398,7 @@ const allFinishedOrders = async (req, res) => {
   }
 };
 
+/*================== DOKU PAYMENT NOTIFICATION ==================*/
 const paymentNotification = async (req, res) => {
   try {
     let getHeaders = req.headers;
@@ -400,7 +433,36 @@ const paymentNotification = async (req, res) => {
     return res.status(500).json({ status: 'error', message: error.message });
   }
 };
+/*================== DOKU PAYMENT NOTIFICATION ==================*/
 
+/*================== TRIPAY PAYMENT NOTIFICATION ==================*/
+const tripayPaymentNotification = async (req, res) => {
+  try {
+    let json = JSON.stringify(req.body);
+    let signature = crypto.createHmac('sha256', privateKey).update(json).digest('hex');
+    let jsonObj = JSON.parse(json);
+    // console.log(signature);
+    // console.log(jsonObj);
+    // console.log('order_code', jsonObj.merchant_ref);
+    // console.log('headers', req.headers['x-callback-signature']);
+    if (signature !== req.headers['x-callback-signature']) {
+      return res.status(400).json({ success: false, message: 'Signature not match' });
+    } else {
+      const order = await orderService.getByOrderCode(jsonObj.merchant_ref);
+      if (order) {
+        await orderService.changeOrderStatusToPaid(order.order_code);
+        req.app.get('io').emit('pay-order', await orderService.getPaidOrderByOrderCode(order.order_code));
+        req.app.get('io').emit('update-status-order', { status: 'Pesanan Sudah Dibayar' });
+        return res.status(200).json({ success: true, message: 'Order status changed' });
+      } else {
+        return res.status(400).json({ success: false, message: 'Order not found' });
+      }
+    }
+  } catch (error) {
+    return res.status(500).json({ success: false, message: error.message });
+  }
+};
+/*================== TRIPAY PAYMENT NOTIFICATION ==================*/
 module.exports = {
   makeAnOrder,
   initNewOrder,
@@ -417,4 +479,5 @@ module.exports = {
   allFinishedOrders,
   closeOrder,
   paymentNotification,
+  tripayPaymentNotification,
 };

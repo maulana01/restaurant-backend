@@ -4,7 +4,7 @@
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {
-    await queryInterface.createTable('Menus', {
+    await queryInterface.createTable('Users', {
       id: {
         allowNull: false,
         autoIncrement: true,
@@ -14,19 +14,19 @@ module.exports = {
       name: {
         type: Sequelize.STRING,
       },
-      price: {
-        type: Sequelize.DECIMAL(15, 0),
+      password: {
+        type: Sequelize.STRING,
       },
-      category_id: {
-        type: Sequelize.INTEGER,
-        references: {
-          model: 'Categories',
-          key: 'id',
-        },
-        onDelete: 'CASCADE',
+      phone_number: {
+        type: Sequelize.STRING,
       },
-      image: {
-        type: Sequelize.TEXT,
+      email: {
+        type: Sequelize.STRING,
+      },
+      role: {
+        type: Sequelize.ENUM,
+        values: ['OWNER', 'KOKI', 'KASIR'],
+        defaultValue: 'KASIR',
       },
       createdAt: {
         allowNull: false,
@@ -39,7 +39,7 @@ module.exports = {
     });
   },
   async down(queryInterface, Sequelize) {
-    await queryInterface.dropTable('Menus');
+    await queryInterface.dropTable('Users');
   },
 };
 

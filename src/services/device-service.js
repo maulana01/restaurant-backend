@@ -21,8 +21,14 @@ const createDevice = async (device_id, device_brand, device_name) => {
   return device;
 };
 
+const deleteDevice = async (id) => {
+  const device = await models.Device.destroy({ where: { id } });
+  return device;
+};
+
 module.exports = {
   getAll,
   getDeviceById,
   createDevice,
+  deleteDevice,
 };

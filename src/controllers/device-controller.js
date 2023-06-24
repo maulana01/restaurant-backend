@@ -35,8 +35,19 @@ const createDevice = async (req, res, next) => {
   }
 };
 
+const deleteDevice = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const device = await deviceService.deleteDevice(id);
+    return res.status(200).json({ status: 'success', data: device });
+  } catch (error) {
+    return res.status(500).json({ status: 'error', message: error.message });
+  }
+};
+
 module.exports = {
   getAll,
   getDeviceById,
   createDevice,
+  deleteDevice,
 };

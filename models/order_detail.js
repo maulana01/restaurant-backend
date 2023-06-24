@@ -12,7 +12,14 @@ module.exports = (sequelize, DataTypes) => {
     static associate(models) {
       // define association here
       this.belongsTo(models.Order, { foreignKey: 'order_id', as: 'order_details' });
-      this.belongsTo(models.Menu, { foreignKey: 'menu_id', as: 'menu_ref' });
+      this.belongsTo(models.Menu, {
+        foreignKey: {
+          name: 'menu_id',
+          allowNull: true,
+        },
+        as: 'menu_ref',
+        onDelete: 'CASCADE',
+      });
     }
   }
   Order_Detail.init(
