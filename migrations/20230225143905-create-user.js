@@ -28,6 +28,9 @@ module.exports = {
         values: ['OWNER', 'KOKI', 'KASIR'],
         defaultValue: 'KASIR',
       },
+      reset_password_token: {
+        type: Sequelize.STRING,
+      },
       createdAt: {
         allowNull: false,
         type: Sequelize.DATE,

@@ -42,4 +42,6 @@ app.use('/api/v1/menus', routes.menuRoute);
 app.use('/api/v1/orders', routes.orderRoute);
 app.use('/api/v1/devices', routes.deviceRoute);
 app.use('/api/v1/categories', routes.categoryRoute);
+app.use('/api/v1/users', routes.userRoute);
+app.use('/api/v1/auth', routes.authRoute);
 server.listen(port, () => console.log('listening on port 3000'));
