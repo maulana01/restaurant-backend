@@ -5,7 +5,7 @@ const bodyParser = require('body-parser');
 const cors = require('cors');
 const app = express();
 const http = require('http');
-const port = 3000;
+const port = 4000;
 const server = http.createServer(app);
 const { Server } = require('socket.io');
 
@@ -44,4 +44,4 @@ app.use('/api/v1/devices', routes.deviceRoute);
 app.use('/api/v1/categories', routes.categoryRoute);
 app.use('/api/v1/users', routes.userRoute);
 app.use('/api/v1/auth', routes.authRoute);
-server.listen(port, () => console.log('listening on port 3000'));
+server.listen(port, () => console.log('listening on port 4000'));

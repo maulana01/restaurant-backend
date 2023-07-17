@@ -2,10 +2,10 @@
 
 // const moment = require('moment');
 const models = require('../../models');
-require('moment/locale/id');
+const { Op } = models.Sequelize;
 
 const TODAY_START = new Date().setHours(7, 0, 0, 0);
-const NOW = new Date().setHours(30, 59, 59, 59);
+const TODAY_END = new Date().setHours(30, 59, 59, 59);
 
 const createOrder = async (body) => {
   return await models.Order.create(body);
@@ -169,13 +169,14 @@ const getPaidOrderByOrderCode = async (order_code) => {
 };
 
 const getAllPaidOrders = async () => {
+  console.log('TODAY_START', TODAY_START);
   return await models.Order.findAll({
     where: {
       status: 'Pesanan Sudah Dibayar',
       // change it later to createdAt
       updatedAt: {
         [models.Sequelize.Op.gt]: TODAY_START,
-        [models.Sequelize.Op.lt]: NOW,
+        [models.Sequelize.Op.lt]: TODAY_END,
       },
     },
     order: [['updatedAt', 'ASC']],
@@ -211,7 +212,7 @@ const getAllProcessedOrders = async () => {
       // change it later to createdAt
       updatedAt: {
         [models.Sequelize.Op.gt]: TODAY_START,
-        [models.Sequelize.Op.lt]: NOW,
+        [models.Sequelize.Op.lt]: TODAY_END,
       },
     },
     order: [['updatedAt', 'ASC']],
@@ -247,7 +248,7 @@ const getAllFinishedOrders = async () => {
       // change it later to createdAt
       updatedAt: {
         [models.Sequelize.Op.gt]: TODAY_START,
-        [models.Sequelize.Op.lt]: NOW,
+        [models.Sequelize.Op.lt]: TODAY_END,
       },
     },
     order: [['updatedAt', 'ASC']],
@@ -265,6 +266,79 @@ const closeOrder = async (order_code) => {
       },
     }
   );
+};
+
+const getAllOrders = async (page, limit, search = '', sort = '', filter = '') => {
+  // Construct the `order` array based on the `storeSort` object
+  const order = sort != '' ? Object.entries(sort).map(([fieldName, sortOrder]) => [fieldName, sortOrder]) : [['createdAt', 'DESC']];
+  const checkSearch =
+    search != ''
+      ? {
+          [Op.or]: [{ order_code: { [Op.iLike]: `%${search}%` } }, { name: { [Op.iLike]: `%${search}%` } }],
+        }
+      : {};
+
+  /* NOTE FOR MYSELF */
+  const getFilterList = filter != '' ? Object.entries(filter).map(([fieldName, sortFilter]) => [fieldName, sortFilter]) : {};
+  const filterArrToObj = filter != '' && Object.fromEntries(getFilterList);
+  /* OPERATION KEY OBJECT DI FILTERLIST GA JADI DI PAKE, YG DI PAKE CUMA VALUE NYA AJA */
+  /* NOTE FOR MYSELF */
+
+  const query = {
+    offset: page ? (page - 1) * limit : 0,
+    limit: limit ? parseInt(limit, 10) : 10,
+    where: {
+      ...checkSearch,
+    },
+    order,
+    distinct: true,
+  };
+
+  if (getFilterList.length > 0) {
+    if (filterArrToObj.status) {
+      query.where = {
+        ...query.where,
+        status: {
+          [Op.iLike]: `${filterArrToObj.status.value}`,
+        },
+      };
+    }
+    if (filterArrToObj.startDate && filterArrToObj.endDate) {
+      // Assuming you have the filterArrToObj object with the startDate and endDate values
+      const startDateValue = filterArrToObj.startDate.value;
+      const endDateValue = filterArrToObj.endDate.value;
+
+      // Create new Date objects in "Asia/Jakarta" timezone
+      const startDateInJakarta = new Date(startDateValue);
+      const endDateInJakarta = new Date(endDateValue);
+
+      const jakartaTimezone = 'Asia/Jakarta';
+      const options = { timeZone: jakartaTimezone };
+
+      // Set the start date to the beginning of the day (00:00:00)
+      startDateInJakarta.setHours(7, 0, 0, 0);
+
+      // Set the end date to the end of the day (23:59:59)
+      endDateInJakarta.setHours(30, 59, 59, 59);
+
+      // Format the dates into strings in "Asia/Jakarta" timezone
+      const formattedStartDate = startDateInJakarta.toLocaleString('en-US', options);
+      const formattedEndDate = endDateInJakarta.toLocaleString('en-US', options);
+
+      console.log('formattedStartDate', formattedStartDate);
+      console.log('formattedEndDate', formattedEndDate);
+
+      query.where = {
+        ...query.where,
+        createdAt: {
+          [Op.gt]: formattedStartDate,
+          [Op.lt]: formattedEndDate,
+        },
+      };
+    }
+  }
+
+  return await models.Order.findAndCountAll(query);
 };
 
 module.exports = {
@@ -292,4 +366,5 @@ module.exports = {
   getAllFinishedOrders,
   getFinishedOrderByTableNumber,
   closeOrder,
+  getAllOrders,
 };

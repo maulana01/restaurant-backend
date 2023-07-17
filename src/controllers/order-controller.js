@@ -109,6 +109,40 @@ const generateOrderCode = async (i = 1, table_number) => {
   // output : SNC23040220001 (SNC + YY + MM + DD + table_number + 0001 Increment)
 };
 
+const getListSort = (sort) => {
+  const sortingFields = sort.split(',');
+  const storeSort = {};
+  // Now you can process each sorting field (e.g., order_code and payment_method)
+  for (const field of sortingFields) {
+    const [fieldName, sortOrder] = field.split('=');
+
+    // Here, "fieldName" will be the name of the field (e.g., "order_code")
+    // and "sortOrder" will be either "ASC" or "DESC"
+    console.log(fieldName, sortOrder);
+    storeSort[fieldName] = sortOrder;
+  }
+  return storeSort;
+};
+
+const getListFilter = (filter) => {
+  const filteringFields = filter.split(',');
+  const storeFilter = {};
+  // Now you can process each filtering field (e.g., order_code and payment_method)
+  for (const field of filteringFields) {
+    const [fieldName, filterOrder] = field.split('=');
+    const [filterOrder1, filterOrder2] = filterOrder.split('.');
+
+    // Here, "fieldName" will be the name of the field (e.g., "order_code")
+    // and "filterOrder" will be either "ASC" or "DESC"
+    console.log(fieldName, filterOrder);
+    storeFilter[fieldName] = {
+      operation: filterOrder1,
+      value: filterOrder2,
+    };
+  }
+  return storeFilter;
+};
+
 const initNewOrder = async (req, res) => {
   try {
     const { table_number, device_ids } = req.body;
@@ -463,6 +497,50 @@ const tripayPaymentNotification = async (req, res) => {
   }
 };
 /*================== TRIPAY PAYMENT NOTIFICATION ==================*/
+
+const getAllOrders = async (req, res) => {
+  try {
+    const { page, limit, search, sort, filter } = req.query;
+    // console.log('ini filter', getListFilter(filter));
+    // const { startDate, endDate } = getListFilter(filter);
+    // console.log('ini tipe data', typeof JSON.stringify(startDate));
+    // const convertStartDate = moment(JSON.stringify(startDate), 'YYYY-MM-DD HH:mm:ss').startOf('day').unix();
+    // const convertEndDate = moment(JSON.stringify(endDate), 'YYYY-MM-DD HH:mm:ss').endOf('day').unix();
+    // return res.status(200).json({ status: 'success', message: convertStartDate });
+    if (search) {
+      if (search == '') {
+        return res.status(200).json({ status: 'success', message: 'Search is empty' });
+      } else {
+        const orders = await orderService.getAllOrders(page, limit, search, '', filter ? getListFilter(filter) : '');
+        // console.log(orders);
+        return res.status(200).json({
+          status: 'success',
+          data: orders,
+          current_page: page,
+          total_pages: Math.ceil(orders.count / limit),
+          total_items: orders.rows.length,
+          search,
+          ...(filter ? { filter: getListFilter(filter) } : {}),
+        });
+      }
+    } else {
+      const orders = await orderService.getAllOrders(page, limit, '', sort ? getListSort(sort) : '', filter ? getListFilter(filter) : '');
+      // console.log(orders);
+      return res.status(200).json({
+        status: 'success',
+        data: orders,
+        current_page: page,
+        total_pages: Math.ceil(orders.count / limit),
+        total_items: orders.rows.length,
+        ...(sort ? { sortBy: getListSort(sort) } : {}),
+        ...(filter ? { filter: getListFilter(filter) } : {}),
+      });
+    }
+    // return res.status(200).json({ status: 'success', message: 'sa' });
+  } catch (error) {
+    return res.status(500).json({ status: 'error', message: error.message, line: error.stack });
+  }
+};
 module.exports = {
   makeAnOrder,
   initNewOrder,
@@ -480,4 +558,5 @@ module.exports = {
   closeOrder,
   paymentNotification,
   tripayPaymentNotification,
+  getAllOrders,
 };

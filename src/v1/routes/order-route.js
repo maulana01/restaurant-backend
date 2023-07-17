@@ -8,6 +8,7 @@ const tripay = require('../../controllers/tripay');
 const { body, param } = require('express-validator');
 
 // router.get('/new-order/:table_number', orderController.getNewOrder);
+router.get('/', orderController.getAllOrders);
 router.get('/new-order/:device_ids', orderController.getNewOrderByDevice);
 router.get('/order/:order_code', orderController.getOrderAndOrderDetail);
 router.get('/paid-orders', orderController.allPaidOrders);
