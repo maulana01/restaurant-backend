@@ -13,8 +13,10 @@ const axios = require('axios'); // using Axios library
 const moment = require('moment/moment');
 
 /*==================== TRIPAY CONFIG ====================*/
-const apiKey = 'DEV-1E32qQGO7FmceagRMhecjo9zGhttmV0tOLbLC8fY';
-const privateKey = 'OjOvo-66Swz-ID3yv-ppcMr-vbFdO';
+// const apiKey = 'DEV-1E32qQGO7FmceagRMhecjo9zGhttmV0tOLbLC8fY';
+// const privateKey = 'OjOvo-66Swz-ID3yv-ppcMr-vbFdO';
+const apiKey = '6n1sye6oNYCjjed4tqATuMjtGTHblGKzp01AbhA0';
+const privateKey = 'BYY97-6KXJL-1BbUT-Cdz5w-ir0X5';
 
 const merchant_code = 'T22987';
 
@@ -68,7 +70,7 @@ function createSignature(merchant_code, merchant_ref, amount) {
 
 const transactionCreate = async (payload, apiKey) => {
   try {
-    const result = await axios.post('https://tripay.co.id/api-sandbox/transaction/create', payload, {
+    const result = await axios.post('https://tripay.co.id/api/transaction/create', payload, {
       headers: { Authorization: 'Bearer ' + apiKey },
       validateStatus: function (status) {
         return status < 999; // ignore http error

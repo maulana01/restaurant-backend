@@ -96,7 +96,6 @@ const updateUser = async (req, res) => {
     }
     const result = await userService.updateUser(id, updatedUser);
     if (result) {
-      res.setHeader('Content-Security-Policy', 'upgrade-insecure-requests');
       return res.status(200).json({ status: 'success', message: 'User updated' });
     }
     return res.status(500).json({ status: 'error', message: 'Failed to update user' });
