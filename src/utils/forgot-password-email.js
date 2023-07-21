@@ -14,7 +14,7 @@ const emailTemplate = (name, email, token) => {
     <p>Kepada ${name},</p>
     <p>Kami menerima permintaan untuk mereset password akun Sans Co Cafe Admin Anda. Jika Anda tidak membuat permintaan ini, silakan abaikan email ini.</p>
     <p>Untuk mereset password Anda, klik tombol di bawah ini:</p>
-    <p><a href="http://localhost:3000/reset-password/${token}" style="display: inline-block; padding: 10px 20px; background-color: #4CAF50; color: #ffffff; text-decoration: none; border-radius: 4px;">Reset Password</a></p>
+    <p><a href="https://admin-sansco.vercel.app/reset-password/${token}" style="display: inline-block; padding: 10px 20px; background-color: #4CAF50; color: #ffffff; text-decoration: none; border-radius: 4px;">Reset Password</a></p>
     <p>Terima kasih.</p>
   </div>
 </body>

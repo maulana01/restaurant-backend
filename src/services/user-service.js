@@ -3,8 +3,13 @@
 const models = require('../../models');
 
 const getAllUser = async () => {
-  const users = await models.User.findAll({ order: [['name', 'ASC']] });
+  const users = await models.User.findAll({ attributes: { exclude: ['password', 'reset_password_token'] }, order: [['name', 'ASC']] });
   return users.map((user) => user.dataValues);
+};
+
+const getById = async (id) => {
+  const user = await models.User.findOne({ where: { id } });
+  return user;
 };
 
 const getByEmail = async (email) => {
@@ -30,10 +35,23 @@ const updateResetPasswordToken = async (email, token) => {
   }
 };
 
+const updateUser = async (id, body) => {
+  const user = await models.User.update(body, { where: { id } });
+  return user;
+};
+
+const deleteUser = async (id) => {
+  const user = await models.User.destroy({ where: { id } });
+  return user;
+};
+
 module.exports = {
   getAllUser,
+  getById,
   getByEmail,
   createUser,
   updateResetPasswordToken,
   getByToken,
+  updateUser,
+  deleteUser,
 };
