@@ -18,7 +18,8 @@ const moment = require('moment/moment');
 const apiKey = '6n1sye6oNYCjjed4tqATuMjtGTHblGKzp01AbhA0';
 const privateKey = 'BYY97-6KXJL-1BbUT-Cdz5w-ir0X5';
 
-const merchant_code = 'T22987';
+// const merchant_code = 'T22987';
+const merchant_code = 'T23528';
 
 const expiry = parseInt(Math.floor(new Date() / 1000) + 24 * 60 * 60); // 24 jam
 /*==================== TRIPAY CONFIG ====================*/
