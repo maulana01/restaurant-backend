@@ -3,9 +3,12 @@
 // const moment = require('moment');
 const models = require('../../models');
 const { Op } = models.Sequelize;
+const moment = require('moment/moment');
 
 const TODAY_START = new Date().setHours(7, 0, 0, 0);
 const TODAY_END = new Date().setHours(30, 59, 59, 59);
+const convertStartDate = moment(JSON.stringify(new Date()), 'YYYY-MM-DD HH:mm:ss').startOf('day').unix();
+const convertEndDate = moment(JSON.stringify(new Date()), 'YYYY-MM-DD HH:mm:ss').endOf('day').unix();
 
 const createOrder = async (body) => {
   return await models.Order.create(body);
@@ -169,14 +172,15 @@ const getPaidOrderByOrderCode = async (order_code) => {
 };
 
 const getAllPaidOrders = async () => {
-  console.log('TODAY_START', TODAY_START);
+  console.log('TODAY_START', convertStartDate);
+  console.log('TODAY_END', convertEndDate);
   return await models.Order.findAll({
     where: {
       status: 'Pesanan Sudah Dibayar',
       // change it later to createdAt
       updatedAt: {
-        [models.Sequelize.Op.gt]: TODAY_START,
-        [models.Sequelize.Op.lt]: TODAY_END,
+        [models.Sequelize.Op.gt]: convertStartDate,
+        [models.Sequelize.Op.lt]: convertEndDate,
       },
     },
     order: [['updatedAt', 'ASC']],
@@ -211,8 +215,8 @@ const getAllProcessedOrders = async () => {
       status: 'Pesanan Sedang Diproses',
       // change it later to createdAt
       updatedAt: {
-        [models.Sequelize.Op.gt]: TODAY_START,
-        [models.Sequelize.Op.lt]: TODAY_END,
+        [models.Sequelize.Op.gt]: convertStartDate,
+        [models.Sequelize.Op.lt]: convertEndDate,
       },
     },
     order: [['updatedAt', 'ASC']],
@@ -247,8 +251,8 @@ const getAllFinishedOrders = async () => {
       status: 'Pesanan Selesai',
       // change it later to createdAt
       updatedAt: {
-        [models.Sequelize.Op.gt]: TODAY_START,
-        [models.Sequelize.Op.lt]: TODAY_END,
+        [models.Sequelize.Op.gt]: convertStartDate,
+        [models.Sequelize.Op.lt]: convertEndDate,
       },
     },
     order: [['updatedAt', 'ASC']],
