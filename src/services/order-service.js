@@ -7,8 +7,8 @@ const moment = require('moment/moment');
 
 const TODAY_START = new Date().setHours(7, 0, 0, 0);
 const TODAY_END = new Date().setHours(30, 59, 59, 59);
-const convertStartDate = moment(JSON.stringify(new Date()), 'YYYY-MM-DD HH:mm:ss').startOf('day').unix();
-const convertEndDate = moment(JSON.stringify(new Date()), 'YYYY-MM-DD HH:mm:ss').endOf('day').unix();
+const convertStartDate = moment().startOf('day');
+const convertEndDate = moment().endOf('day');
 
 const createOrder = async (body) => {
   return await models.Order.create(body);
@@ -174,6 +174,7 @@ const getPaidOrderByOrderCode = async (order_code) => {
 const getAllPaidOrders = async () => {
   console.log('TODAY_START', convertStartDate);
   console.log('TODAY_END', convertEndDate);
+  console.log('sdadasd', new Date());
   return await models.Order.findAll({
     where: {
       status: 'Pesanan Sudah Dibayar',
