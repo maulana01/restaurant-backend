@@ -23,7 +23,7 @@ router.patch('/close-order/:table_number', orderController.closeOrder);
 router.post('/', orderController.initNewOrder);
 router.post('/payment/notification', orderController.paymentNotification);
 
-router.post('/tripay', tripay.transactionCreate);
+// router.post('/tripay', tripay.transactionCreate);
 router.post('/payment-tripay/notification', orderController.tripayPaymentNotification);
 
 module.exports = router;

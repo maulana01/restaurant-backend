@@ -243,6 +243,8 @@ const makeAnOrder = async (req, res) => {
       const result = await transactionCreate(payloadTripay, apiKey);
 
       console.log('statuskode', result.status);
+      console.log('result data 1', result.data);
+      console.log('result data 2', result.data.data);
       console.log('qr_url', result.data.data.qr_url);
       console.log('pay_code', result.data.data.pay_code);
       console.log('expired_time', result.data.data.expired_time);
