@@ -19,6 +19,17 @@ const getAllCategory = async (req, res) => {
   }
 };
 
+const getById = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const category = await categoryService.getCategoryById(id);
+    if (!category) return res.status(404).json({ status: 'error', message: 'Category not found' });
+    return res.status(200).json({ status: 'success', message: 'Category detail', data: category });
+  } catch (error) {
+    return res.status(500).json({ status: 'error', message: error.message });
+  }
+};
+
 const createCategory = async (req, res) => {
   try {
     const { name } = req.body;
@@ -100,6 +111,7 @@ const deleteCategoryImage = async (req, res) => {
 
 module.exports = {
   getAllCategory,
+  getById,
   createCategory,
   updateCategory,
   deleteCategory,

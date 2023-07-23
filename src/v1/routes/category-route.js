@@ -18,6 +18,7 @@ const validateCategoryUpdate = [
 ];
 
 router.get('/', categoryController.getAllCategory);
+router.get('/:id', categoryController.getById);
 router.post('/', utils.upload('categories').single('image'), validateCategoryPost, categoryController.createCategory);
 router.patch('/:id', utils.upload('categories').single('image'), validateCategoryUpdate, categoryController.updateCategory);
 router.delete('/:id', categoryController.deleteCategory);
