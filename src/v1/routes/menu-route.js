@@ -21,6 +21,7 @@ const validateMenuUpdate = [
 ];
 
 router.get('/', menuController.getAllMenu);
+router.get('/:id', menuController.getById);
 router.post('/', utils.upload('menus').single('image'), validateMenuPost, menuController.createMenu);
 router.patch('/:id', utils.upload('menus').single('image'), validateMenuUpdate, menuController.updateMenu);
 router.delete('/:id', menuController.deleteMenu);

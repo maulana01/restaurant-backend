@@ -18,6 +18,17 @@ const getAllMenu = async (req, res) => {
   }
 };
 
+const getById = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const menu = await menuService.getById(id);
+    if (!menu) return res.status(404).json({ status: 'error', message: 'Menu not found' });
+    return res.status(200).json({ status: 'success', data: menu });
+  } catch (error) {
+    return res.status(500).json({ status: 'error', message: error.message });
+  }
+};
+
 const createMenu = async (req, res) => {
   try {
     const { name, price, category_id } = req.body;
@@ -91,6 +102,7 @@ const deleteMenu = async (req, res) => {
 
 module.exports = {
   getAllMenu,
+  getById,
   createMenu,
   updateMenu,
   deleteMenu,
