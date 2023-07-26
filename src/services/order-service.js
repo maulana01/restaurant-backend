@@ -298,10 +298,23 @@ const getAllOrders = async (page, limit, search = '', sort = '', filter = '') =>
     order,
     distinct: true,
   };
+  const query2 = {
+    where: {
+      ...checkSearch,
+    },
+    order,
+    distinct: true,
+  };
 
   if (getFilterList.length > 0) {
     if (filterArrToObj.status) {
       query.where = {
+        ...query.where,
+        status: {
+          [Op.iLike]: `${filterArrToObj.status.value}`,
+        },
+      };
+      query2.where = {
         ...query.where,
         status: {
           [Op.iLike]: `${filterArrToObj.status.value}`,
@@ -340,10 +353,19 @@ const getAllOrders = async (page, limit, search = '', sort = '', filter = '') =>
           [Op.lt]: formattedEndDate,
         },
       };
+      query2.where = {
+        ...query.where,
+        createdAt: {
+          [Op.gt]: formattedStartDate,
+          [Op.lt]: formattedEndDate,
+        },
+      };
     }
   }
 
-  return await models.Order.findAndCountAll(query);
+  // return await models.Order.findAndCountAll(query);
+  // return 2 query
+  return await Promise.all([models.Order.findAll(query), models.Order.findAll(query2)]);
 };
 
 module.exports = {
