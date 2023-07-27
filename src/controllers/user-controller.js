@@ -79,7 +79,7 @@ const createUser = async (req, res) => {
 const updateUser = async (req, res) => {
   try {
     const { id } = req.params;
-    const { name, email, phone_number, role } = req.body;
+    const { name, email, phone_number, role, password } = req.body;
     const user = await userService.getById(id);
     if (!user) {
       return res.status(404).json({ status: 'error', message: 'User not found' });
@@ -89,6 +89,7 @@ const updateUser = async (req, res) => {
       email,
       phone_number,
       role,
+      password: await argon2.hash(password),
     };
     const validateForm = validationResult(req);
     if (!validateForm.isEmpty()) {
