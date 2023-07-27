@@ -89,8 +89,12 @@ const updateUser = async (req, res) => {
       email,
       phone_number,
       role,
-      password: await argon2.hash(password),
     };
+
+    if (password) {
+      updatedUser.password = await argon2.hash(password);
+    }
+
     const validateForm = validationResult(req);
     if (!validateForm.isEmpty()) {
       return res.status(400).json({ status: 'error', errors: validateForm.array() });
