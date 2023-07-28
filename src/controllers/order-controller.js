@@ -2,6 +2,7 @@
 
 const orderService = require('../services/order-service');
 const menuService = require('../services/menu-service');
+const userService = require('../services/user-service');
 const http = require('node:http');
 const { v4: uuidv4 } = require('uuid');
 const crypto = require('crypto');
@@ -350,7 +351,12 @@ const getOrderAndOrderDetail = async (req, res) => {
     const order = await orderService.getByOrderCode(order_code);
     if (order) {
       const orderDetail = await orderService.getOrderDetail(order.id);
-      return res.status(200).json({ status: 'success', data: { Pesanan: order, 'Detail Pesanan': orderDetail } });
+      if (order.user_ids) {
+        const user = await userService.getById(order.user_ids);
+        return res.status(200).json({ status: 'success', data: { Pesanan: order, 'Detail Pesanan': orderDetail, ProcessedBy: user.name } });
+      } else {
+        return res.status(200).json({ status: 'success', data: { Pesanan: order, 'Detail Pesanan': orderDetail } });
+      }
     } else {
       return res.status(400).json({ status: 'error', message: 'Order not found' });
     }
