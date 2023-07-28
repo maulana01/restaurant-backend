@@ -387,10 +387,11 @@ const allPaidOrders = async (req, res) => {
 
 const changeOrderStatusToProcessed = async (req, res) => {
   try {
+    const { user_ids } = req.body;
     const { order_code } = req.params;
     const order = await orderService.getByOrderCode(order_code);
     if (order) {
-      await orderService.changeOrderStatusToProcessed(order.order_code);
+      await orderService.changeOrderStatusToProcessed(order.order_code, user_ids);
       req.app.get('io').emit('processed-orders', await orderService.getProcessedOrderByOrderCode(order_code));
       req.app.get('io').emit('update-status-order', { status: 'Pesanan Sedang Diproses' });
       return res.status(200).json({ status: 'success', message: 'Order status changed' });

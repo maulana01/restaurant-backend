@@ -188,10 +188,11 @@ const getAllPaidOrders = async () => {
   });
 };
 
-const changeOrderStatusToProcessed = async (order_code) => {
+const changeOrderStatusToProcessed = async (order_code, user_ids) => {
   return await models.Order.update(
     {
       status: 'Pesanan Sedang Diproses',
+      user_ids,
     },
     {
       where: {
