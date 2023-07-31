@@ -369,6 +369,14 @@ const getAllOrders = async (page, limit, search = '', sort = '', filter = '') =>
   return await Promise.all([models.Order.findAll(query), models.Order.findAll(query2)]);
 };
 
+const deleteOrder = async (order_code) => {
+  return await models.Order.destroy({
+    where: {
+      order_code,
+    },
+  });
+};
+
 module.exports = {
   createOrder,
   getByOrderCode,
@@ -395,4 +403,5 @@ module.exports = {
   getFinishedOrderByTableNumber,
   closeOrder,
   getAllOrders,
+  deleteOrder,
 };

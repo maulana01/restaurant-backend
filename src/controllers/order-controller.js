@@ -561,6 +561,22 @@ const getAllOrders = async (req, res) => {
     return res.status(500).json({ status: 'error', message: error.message, line: error.stack });
   }
 };
+
+const deleteOrder = async (req, res) => {
+  try {
+    const { orderCode } = req.params;
+    const order = await orderService.getByOrderCode(orderCode);
+    if (order) {
+      await orderService.deleteOrder(orderCode);
+      return res.status(200).json({ status: 'success', message: 'Order deleted' });
+    } else {
+      return res.status(400).json({ status: 'error', message: 'Order not found' });
+    }
+  } catch (error) {
+    return res.status(500).json({ status: 'error', message: error.message, line: error.stack });
+  }
+};
+
 module.exports = {
   makeAnOrder,
   initNewOrder,
@@ -579,4 +595,5 @@ module.exports = {
   paymentNotification,
   tripayPaymentNotification,
   getAllOrders,
+  deleteOrder,
 };

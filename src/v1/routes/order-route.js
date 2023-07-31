@@ -22,6 +22,7 @@ router.patch('/finish-order/:order_code', orderController.changeOrderStatusToFin
 router.patch('/close-order/:table_number', orderController.closeOrder);
 router.post('/', orderController.initNewOrder);
 router.post('/payment/notification', orderController.paymentNotification);
+router.delete('/:order_code', orderController.deleteOrder);
 
 // router.post('/tripay', tripay.transactionCreate);
 router.post('/payment-tripay/notification', orderController.tripayPaymentNotification);
