@@ -564,10 +564,10 @@ const getAllOrders = async (req, res) => {
 
 const deleteOrder = async (req, res) => {
   try {
-    const { orderCode } = req.params;
-    const order = await orderService.getByOrderCode(orderCode);
+    const { order_code } = req.params;
+    const order = await orderService.getByOrderCode(order_code);
     if (order) {
-      await orderService.deleteOrder(orderCode);
+      await orderService.deleteOrder(order_code);
       return res.status(200).json({ status: 'success', message: 'Order deleted' });
     } else {
       return res.status(400).json({ status: 'error', message: 'Order not found' });
