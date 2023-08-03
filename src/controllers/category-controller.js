@@ -12,8 +12,34 @@ cloudinary.config({
 
 const getAllCategory = async (req, res) => {
   try {
-    const categories = await categoryService.getAllCategories();
-    return res.status(200).json({ status: 'success', message: 'Category list', data: categories });
+    const { page, limit, search } = req.query;
+    if (search) {
+      if (search == '') {
+        return res.status(200).json({ status: 'success', message: 'Search is empty' });
+      } else {
+        const categories = await categoryService.getAllCategories(page, limit, search);
+        return res.status(200).json({
+          status: 'success',
+          message: 'Category list',
+          current_page: page,
+          total_pages: Math.ceil(categories.count / limit),
+          total_items: categories.count,
+          search,
+          data: categories,
+        });
+      }
+    } else {
+      const categories = await categoryService.getAllCategories(page, limit, '');
+      return res.status(200).json({
+        status: 'success',
+        message: 'Category list',
+        current_page: page,
+        total_pages: Math.ceil(categories.count / limit),
+        total_items: categories.rows.length,
+        data: categories,
+      });
+    }
+    // return res.status(200).json({ status: 'success', message: 'Category list', data: categories });
   } catch (error) {
     return res.status(500).json({ status: 'error', message: error.message });
   }

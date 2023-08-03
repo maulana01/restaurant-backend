@@ -1,10 +1,29 @@
 /** @format */
 
 const models = require('../../models');
+const { Op } = models.Sequelize;
 
-const getAllCategories = async () => {
-  const categories = await models.Category.findAll({ order: [['name', 'ASC']], include: [{ model: models.Menu, as: 'items' }] });
-  return categories.map((category) => category.dataValues);
+const getAllCategories = async (page, limit, search = '') => {
+  const checkSearch =
+    search !== ''
+      ? {
+          name: {
+            [Op.iLike]: `%${search}%`,
+          },
+        }
+      : {};
+  const query = {
+    offset: page ? (page - 1) * limit : 0,
+    limit: limit ? parseInt(limit, 10) : 10,
+    where: {
+      ...checkSearch,
+    },
+    distinct: true,
+    include: [{ model: models.Menu, as: 'items' }],
+  };
+  return await models.Category.findAndCountAll(query);
+  // const categories = await models.Category.findAll({ order: [['name', 'ASC']], include: [{ model: models.Menu, as: 'items' }] });
+  // return categories.map((category) => category.dataValues);
 };
 
 const getCategoryById = async (id) => {

@@ -17,8 +17,34 @@ const transporter = nodemailer.createTransport({
 
 const getAllUser = async (req, res) => {
   try {
-    const users = await userService.getAllUser();
-    return res.status(200).json({ status: 'success', message: 'User list', data: users });
+    const { page, limit, search } = req.query;
+    if (search) {
+      if (search == '') {
+        return res.status(200).json({ status: 'success', message: 'Search is empty' });
+      } else {
+        const users = await userService.getAllUser(page, limit, search);
+        return res.status(200).json({
+          status: 'success',
+          message: 'User list',
+          current_page: page,
+          total_pages: Math.ceil(users.count / limit),
+          total_items: users.count,
+          search,
+          data: users,
+        });
+      }
+    } else {
+      const users = await userService.getAllUser(page, limit, '');
+      return res.status(200).json({
+        status: 'success',
+        message: 'User list',
+        current_page: page,
+        total_pages: Math.ceil(users.count / limit),
+        total_items: users.rows.length,
+        data: users,
+      });
+    }
+    // return res.status(200).json({ status: 'success', message: 'User list', data: users });
   } catch (error) {
     return res.status(500).json({ status: 'error', message: error.message });
   }

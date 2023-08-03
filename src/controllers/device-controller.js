@@ -4,8 +4,34 @@ const deviceService = require('../services/device-service');
 
 const getAll = async (req, res, next) => {
   try {
-    const devices = await deviceService.getAll();
-    return res.status(200).json({ status: 'success', data: devices });
+    const { page, limit, search } = req.query;
+    if (search) {
+      if (search == '') {
+        return res.status(200).json({ status: 'success', message: 'Search is empty' });
+      } else {
+        const devices = await deviceService.getAll(page, limit, search);
+        return res.status(200).json({
+          status: 'success',
+          message: 'Device List',
+          current_page: page,
+          total_pages: Math.ceil(devices.count / limit),
+          total_items: devices.count,
+          search,
+          data: devices,
+        });
+      }
+    } else {
+      const devices = await deviceService.getAll(page, limit, '');
+      return res.status(200).json({
+        status: 'success',
+        message: 'Device List',
+        current_page: page,
+        total_pages: Math.ceil(devices.count / limit),
+        total_items: devices.rows.length,
+        data: devices,
+      });
+    }
+    // return res.status(200).json({ status: 'success', data: devices });
   } catch (error) {
     return res.status(500).json({ status: 'error', message: error.message });
   }

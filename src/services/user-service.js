@@ -1,10 +1,29 @@
 /** @format */
 
 const models = require('../../models');
+const { Op } = models.Sequelize;
 
-const getAllUser = async () => {
-  const users = await models.User.findAll({ attributes: { exclude: ['password', 'reset_password_token'] }, order: [['name', 'ASC']] });
-  return users.map((user) => user.dataValues);
+const getAllUser = async (page, limit, search = '') => {
+  const checkSearch =
+    search !== ''
+      ? {
+          name: {
+            [Op.iLike]: `%${search}%`,
+          },
+        }
+      : {};
+  const query = {
+    offset: page ? (page - 1) * limit : 0,
+    limit: limit ? parseInt(limit, 10) : 10,
+    where: {
+      ...checkSearch,
+    },
+    distinct: true,
+    attributes: { exclude: ['password', 'reset_password_token'] },
+  };
+  return await models.User.findAndCountAll(query);
+  // const users = await models.User.findAll({ attributes: { exclude: ['password', 'reset_password_token'] }, order: [['name', 'ASC']] });
+  // return users.map((user) => user.dataValues);
 };
 
 const getById = async (id) => {

@@ -9,12 +9,55 @@ cloudinary.config({
   api_secret: 'xO_NsHIMoLR3yqPLraq0I0yKbC0',
 });
 
+const getListFilter = (filter) => {
+  const filteringFields = filter.split(',');
+  const storeFilter = {};
+  // Now you can process each filtering field (e.g., order_code and payment_method)
+  for (const field of filteringFields) {
+    const [fieldName, filterValue] = field.split('=');
+
+    // Here, "fieldName" will be the name of the field (e.g., "order_code")
+    // and "filterValue" will be the value of the field (e.g., "ORD-0001")
+    console.log(fieldName, filterValue);
+    storeFilter[fieldName] = filterValue;
+  }
+  return storeFilter;
+};
+
 const getAllMenu = async (req, res) => {
   try {
-    const menus = await menuService.getAllMenus();
-    return res.status(200).json({ status: 'success', message: 'Menu list', data: menus });
+    const { search, filter, page, limit } = req.query;
+    if (search) {
+      if (search == '') {
+        return res.status(200).json({ status: 'success', message: 'Search is empty' });
+      } else {
+        const menus = await menuService.getAllMenus(page, limit, search, filter ? getListFilter(filter) : '');
+        return res.status(200).json({
+          status: 'success',
+          message: 'Menu list',
+          current_page: page,
+          total_pages: Math.ceil(menus.count / limit),
+          total_items: menus.count,
+          search,
+          ...(filter ? { filter: getListFilter(filter) } : {}),
+          data: menus,
+        });
+      }
+    } else {
+      const menus = await menuService.getAllMenus(page, limit, '', filter ? getListFilter(filter) : '');
+      return res.status(200).json({
+        status: 'success',
+        message: 'Menu list',
+        current_page: page,
+        total_pages: Math.ceil(menus.count / limit),
+        total_items: menus.rows.length,
+        ...(filter ? { filter: getListFilter(filter) } : {}),
+        data: menus,
+      });
+    }
+    // return res.status(200).json({ status: 'success', message: 'Menu list', data: menus });
   } catch (error) {
-    return res.status(500).json({ status: 'error', message: error.message });
+    return res.status(500).json({ status: 'error', message: error.message, line: error.stack });
   }
 };
 

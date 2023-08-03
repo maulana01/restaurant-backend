@@ -1,10 +1,28 @@
 /** @format */
 
 const models = require('../../models');
+const { Op } = models.Sequelize;
 
-const getAll = async () => {
-  const devices = await models.Device.findAll();
-  return devices;
+const getAll = async (page, limit, search = '') => {
+  const checkSearch =
+    search !== ''
+      ? {
+          device_name: {
+            [Op.iLike]: `%${search}%`,
+          },
+        }
+      : {};
+  const query = {
+    offset: page ? (page - 1) * limit : 0,
+    limit: limit ? parseInt(limit, 10) : 10,
+    where: {
+      ...checkSearch,
+    },
+    distinct: true,
+  };
+  return await models.Device.findAndCountAll(query);
+  // const devices = await models.Device.findAll();
+  // return devices;
 };
 
 const getDeviceById = async (device_id) => {
