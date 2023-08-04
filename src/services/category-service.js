@@ -31,7 +31,7 @@ const getAllCategories = async (page, limit, search = '') => {
   // return await models.Category.findAndCountAll(query);
   // const categories = await models.Category.findAll({ order: [['name', 'ASC']], include: [{ model: models.Menu, as: 'items' }] });
   // return categories.map((category) => category.dataValues);
-  return await Promise.all([models.Category.findAll(query), models.Order.findAll(query2)]);
+  return await Promise.all([models.Category.findAll(query), models.Category.findAll(query2)]);
 };
 
 const getCategoryById = async (id) => {
