@@ -22,10 +22,14 @@ const getAllCategory = async (req, res) => {
           status: 'success',
           message: 'Category list',
           current_page: page,
-          total_pages: Math.ceil(categories.count / limit),
-          total_items: categories.count,
+          total_pages: Math.ceil(categories[1].length / limit),
+          total_items: categories[0].count,
           search,
-          data: categories,
+          data: {
+            count: categories[1].length,
+            rows: categories[0],
+          },
+          data2: categories[1],
         });
       }
     } else {
@@ -34,9 +38,13 @@ const getAllCategory = async (req, res) => {
         status: 'success',
         message: 'Category list',
         current_page: page,
-        total_pages: Math.ceil(categories.count / limit),
-        total_items: categories.rows.length,
-        data: categories,
+        total_pages: Math.ceil(categories[1].length / limit),
+        total_items: categories[0].count,
+        data: {
+          count: categories[1].length,
+          rows: categories[0],
+        },
+        data2: categories[1],
       });
     }
     // return res.status(200).json({ status: 'success', message: 'Category list', data: categories });

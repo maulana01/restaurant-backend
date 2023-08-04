@@ -527,16 +527,16 @@ const getAllOrders = async (req, res) => {
         // console.log(orders);
         return res.status(200).json({
           status: 'success',
+          current_page: page,
+          total_pages: Math.ceil(orders[1].length / limit),
+          total_items: orders[0].length,
+          search,
+          ...(filter ? { filter: getListFilter(filter) } : {}),
           data: {
             count: orders[1].length,
             rows: orders[0],
           },
-          current_page: page,
-          total_pages: Math.ceil(orders[1].length / limit),
-          total_items: orders[0].length,
           forExportData: orders[1],
-          search,
-          ...(filter ? { filter: getListFilter(filter) } : {}),
         });
       }
     } else {
@@ -544,16 +544,16 @@ const getAllOrders = async (req, res) => {
       // console.log(orders);
       return res.status(200).json({
         status: 'success',
+        current_page: page,
+        total_pages: Math.ceil(orders[1].length / limit),
+        total_items: orders[0].length,
+        ...(sort ? { sortBy: getListSort(sort) } : {}),
+        ...(filter ? { filter: getListFilter(filter) } : {}),
         data: {
           count: orders[1].length,
           rows: orders[0],
         },
-        current_page: page,
-        total_pages: Math.ceil(orders[1].length / limit),
-        total_items: orders[0].length,
         forExportData: orders[1],
-        ...(sort ? { sortBy: getListSort(sort) } : {}),
-        ...(filter ? { filter: getListFilter(filter) } : {}),
       });
     }
     // return res.status(200).json({ status: 'success', message: 'sa' });
