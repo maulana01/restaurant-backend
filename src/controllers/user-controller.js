@@ -111,11 +111,20 @@ const updateUser = async (req, res) => {
       return res.status(404).json({ status: 'error', message: 'User not found' });
     }
     const updatedUser = {
-      name,
-      email,
-      phone_number,
       role,
     };
+
+    if (name) {
+      updatedUser.name = name;
+    }
+
+    if (email) {
+      updatedUser.email = email;
+    }
+
+    if (phone_number) {
+      updatedUser.phone_number = phone_number;
+    }
 
     if (password) {
       updatedUser.password = await argon2.hash(password);

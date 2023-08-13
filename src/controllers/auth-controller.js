@@ -20,7 +20,7 @@ const login = async (req, res) => {
   if (!email || !password) {
     return res.status(400).json({
       status: 'error',
-      message: 'Please provide email and password.',
+      message: 'Harap masukkan email dan password Anda.',
     });
   } else {
     const user = await userService.getByEmail(email);
@@ -67,7 +67,7 @@ const forgotPassword = async (req, res) => {
   if (!email) {
     return res.status(400).json({
       status: 'error',
-      message: 'Please provide email.',
+      message: 'Harap masukkan email Anda.',
     });
   } else {
     const user = await userService.getByEmail(email);
@@ -97,7 +97,7 @@ const forgotPassword = async (req, res) => {
       if (error) {
         return res.status(500).json({ status: 'error', message: error.message });
       }
-      return res.status(200).json({ status: 'success', message: 'Reset password link has been sent to your email.' });
+      return res.status(200).json({ status: 'success', message: 'Link Reset Password berhasil dikirim. Silakan cek email Anda.' });
     });
   }
 };
@@ -140,7 +140,7 @@ const resetPassword = async (req, res) => {
     if (password !== confirmPassword) {
       return res.status(401).json({
         status: 'error',
-        message: 'Password tidak sama.',
+        message: 'Harap masukkan password yang sama.',
       });
     }
 

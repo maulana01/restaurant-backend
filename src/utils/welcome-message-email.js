@@ -18,7 +18,7 @@ const emailTemplate = (name, email, password) => {
     <p style="margin-bottom: 20px; line-height: 1.5;"><span style="font-weight: bold;">Kata Sandi:</span> ${password}</p>
     <p style="margin-bottom: 20px; line-height: 1.5;">Untuk mengakses akun Anda, ikuti langkah-langkah berikut:</p>
     <ol style="margin-bottom: 20px; line-height: 1.5;">
-      <li>Kunjungi website kami <a href="https://admin-sansco.vercel.app/"><b>di sini</b></a>.</li>
+      <li>Kunjungi website kami <a href="https://dashboard.apisansco.my.id/"><b>di sini</b></a>.</li>
       <li>Klik tombol "Masuk" atau "Login" yang terletak di pojok kanan atas halaman.</li>
       <li>Masukkan username/alamat email dan kata sandi yang diberikan pada kolom yang sesuai.</li>
       <li>Setelah berhasil login, Anda akan memiliki akses ke dashboard akun Anda, di mana Anda dapat menjelajahi platform kami dan fitur-fiturnya.</li>
