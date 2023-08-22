@@ -3,12 +3,13 @@
 // const moment = require('moment');
 const models = require('../../models');
 const { Op } = models.Sequelize;
-const moment = require('moment/moment');
+const moment = require('moment');
+require('moment-timezone');
 
 const TODAY_START = new Date().setHours(7, 0, 0, 0);
 const TODAY_END = new Date().setHours(30, 59, 59, 59);
-const convertStartDate = moment().startOf('day');
-const convertEndDate = moment().endOf('day');
+const convertStartDate = moment().tz('Asia/Jakarta').startOf('day');
+const convertEndDate = moment().tz('Asia/Jakarta').endOf('day');
 
 const createOrder = async (body) => {
   return await models.Order.create(body);
@@ -172,8 +173,8 @@ const getPaidOrderByOrderCode = async (order_code) => {
 };
 
 const getAllPaidOrders = async () => {
-  console.log('TODAY_START', convertStartDate);
-  console.log('TODAY_END', convertEndDate);
+  console.log('TODAY_START', convertStartDate, 'TIMEZONE', convertStartDate.tz());
+  console.log('TODAY_END', convertEndDate, 'TIMEZONE', convertEndDate.tz());
   console.log('sdadasd', new Date());
   return await models.Order.findAll({
     where: {
