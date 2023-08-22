@@ -9,7 +9,7 @@ const port = 4000;
 const server = http.createServer(app);
 const { Server } = require('socket.io');
 
-app.use(cors({ origin: true }));
+app.use(cors());
 
 const routes = require('./src/v1/routes');
 
